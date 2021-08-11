@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+
+    environment {
+    SVC_ACCOUNT_KEY = credentials('terraform-auth')
+  }
+     
+    stages {
+        stage ('checkout'){
+            steps {
+                git branch: 'main', url: 'https://github.com/Sivakumarbandaru/gcp-devops.git'
+            }
+        }
+      
+
+		stage('Set Terraform path') {
+            steps {
+                script {
+                    def tfHome = tool name: 'Terraform'
+                    env.PATH = "${tfHome}:${env.PATH}"
+                }
+                sh 'echo $SVC_ACCOUNT_KEY | base64 -d > ./Terraform-tfvars/terraform.json'
+		sh 'pwd'
+                sh 'terraform --version'               
+               
+            }
+        }
+        
+         stage('Initialize Terraform') {
+		 steps {  
+			  dir('Terraform-tfvars')
+			 {
+                sh 'terraform init'
+			 }
+		 }
+	 }
+				 
+	stage('Terraform Plan') {
+		 steps {  
+			  dir('Terraform-tfvars')
+			 {
+                sh 'terraform plan --var-file="instance.tfvars"'
+			 }
+		 }
+	}
+				 
+	stage('Terraform Apply') {
+		 steps {  
+			  dir('Terraform-tfvars')
+			 {
+                sh 'terraform apply --var-file="instance.tfvars" -auto-approve'
+			 }
+		 }
+	}
+                             
+}
+}

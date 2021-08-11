@@ -1,0 +1,7 @@
+instance_name = "terraform-host"
+machine_type = "f1-micro"
+zone = "us-central1-c"
+image = "debian-9-stretch-v20200309"
+network = "default"
+project = "sivatestproject"
+region = "us-central1"
